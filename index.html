@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SportStream TV</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #070b12;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+      overscroll-behavior-y: contain;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .channel-grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    @media (max-width: 640px) {
+      .channel-grid-6 {
+        gap: 0.375rem;
+      }
+    }
+    .cinema-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9990 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #000000 !important;
+    }
+    .cinema-fullscreen video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+    }
+    :fullscreen .video-stage-box,
+    :-webkit-full-screen .video-stage-box {
+      width: 100vw !important;
+      height: 100vh !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#070b12] text-slate-100 flex flex-col">
+
+  <!-- TOP HEADER BAR -->
+  <header id="app-header" class="sticky top-0 z-40 bg-[#070b12]/95 backdrop-blur border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-emerald-400 fill-current" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm sm:text-base tracking-tight text-white truncate">SportStream TV</span>
+            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              LIVE
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 truncate">รองรับ http / https · .m3u8 / .mp4 / .webm · Referer</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          id="toggle-hide-player-btn"
+          type="button"
+          onclick="toggleHidePlayer()"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0f172a] hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span id="hide-player-icon">⌄</span>
+          <span id="hide-player-label">ซ่อนจอ</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="openAddModal()"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition flex items-center gap-1 shadow-sm cursor-pointer"
+        >
+          <span>+</span>
+          <span>เพิ่มลิงก์</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 pt-3 pb-8 space-y-3">
+
+    <!-- TOP VIDEO PLAYER SECTION -->
+    <section id="player-section" class="w-full space-y-2.5">
+      <div
+        id="video-container"
+        class="video-stage-box relative w-full aspect-video max-h-[65vh] mx-auto bg-black rounded-2xl overflow-hidden border border-slate-800/90 shadow-2xl select-none"
+      >
+        <video
+          id="main-video"
+          class="w-full h-full object-contain bg-black"
+          playsinline
+          webkit-playsinline
+          autoplay
+          controlslist="nofullscreen"
+        ></video>
+
+        <div
+          id="player-loading"
+          class="hidden absolute inset-0 bg-black/55 flex flex-col items-center justify-center gap-2 pointer-events-none z-10"
+        >
+          <div class="w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-xs text-slate-200 font-medium">กำลังโหลดสัญญาณ...</span>
+        </div>
+
+        <div
+          id="custom-controls-bar"
+          class="opacity-100 transition-opacity duration-300 absolute inset-x-0 bottom-0 z-20 px-3 py-2.5 bg-gradient-to-t from-black/90 via-black/55 to-transparent flex items-center justify-between gap-2"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <button
+              id="bar-play-btn"
+              type="button"
+              onclick="togglePlayPause()"
+              aria-label="เล่นหรือหยุดชั่วคราว"
+              class="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition cursor-pointer shrink-0"
+            >
+              <svg id="bar-play-icon" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              ถ่ายทอดสด
+            </span>
+
+            <span id="bar-time-label" class="text-xs text-slate-200 font-mono tabular-nums truncate">00:00</span>
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button
+              id="bar-mute-btn"
+              type="button"
+              onclick="toggleMute()"
+              aria-label="เปิดหรือปิดเสียง"
+              class="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition cursor-pointer"
+            >
+              <svg id="bar-volume-icon" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              </svg>
+            </button>
+
+            <button
+              id="bar-fullscreen-btn"
+              type="button"
+              onclick="toggleFullscreenMode()"
+              aria-label="ขยายเต็มจอ"
+              class="w-8 h-8 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-400/40 flex items-center justify-center transition cursor-pointer"
+            >
+              <svg id="bar-fs-icon" class="w-4 h-4 stroke-current" fill="none" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE CHANNEL STATUS BAR -->
+      <div class="bg-[#0f172a] border border-slate-800/90 rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <img
+            id="now-playing-logo"
+            src=""
+            alt=""
+            class="w-12 h-9 rounded-lg object-cover bg-slate-800 border border-slate-700/80 shrink-0"
+            onerror="handleLogoFallback(this, currentChannelId)"
+          />
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="now-playing-name" class="font-bold text-sm sm:text-base text-white truncate"></span>
+              <span id="now-playing-category" class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-800 text-slate-300 border border-slate-700/70"></span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                กำลังเล่น
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="delete-custom-btn"
+          type="button"
+          onclick="deleteCurrentCustomChannel()"
+          class="hidden px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition shrink-0 cursor-pointer"
+        >
+          ลบช่อง
+        </button>
+      </div>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <section class="w-full">
+      <div class="relative">
+        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+        </svg>
+        <input
+          id="search-input"
+          type="text"
+          oninput="handleSearchInput(this.value)"
+          placeholder="ค้นหาช่องฟุตบอล กีฬา หรือรายการทีวี..."
+          class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0f172a] border border-slate-800 focus:border-emerald-500/70 focus:outline-none text-sm text-white placeholder-slate-400 transition"
+        />
+      </div>
+    </section>
+
+    <!-- CATEGORY PILLS -->
+    <section class="w-full flex items-center justify-between gap-2">
+      <div id="category-tabs" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5"></div>
+      <span id="channel-count-label" class="text-xs text-slate-400 shrink-0"></span>
+    </section>
+
+    <!-- 6-COLUMN HORIZONTAL CHANNEL GRID -->
+    <section class="w-full">
+      <div id="channel-grid" class="channel-grid-6"></div>
+
+      <div id="empty-state" class="hidden py-12 text-center bg-[#0f172a]/60 border border-slate-800/80 rounded-2xl">
+        <p class="text-sm font-medium text-slate-300">ไม่พบช่องรายการที่ค้นหา</p>
+        <p class="text-xs text-slate-400 mt-1">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่น</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ADD LINK MODAL -->
+  <div id="add-link-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-[#0f172a] border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-white">เพิ่มลิงก์รับชม</h2>
+        <button
+          type="button"
+          onclick="closeAddModal()"
+          class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <form id="add-link-form" onsubmit="handleAddLinkSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">ชื่อช่อง</label>
+          <input
+            id="new-channel-name"
+            type="text"
+            required
+            placeholder="เช่น True Premier Football 1"
+            class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">หมวดหมู่</label>
+          <select
+            id="new-channel-category"
+            class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          >
+            <option value="ฟุตบอลสด">ฟุตบอลสด</option>
+            <option value="กีฬา">กีฬา</option>
+            <option value="ทีวีดิจิทัล">ทีวีดิจิทัล</option>
+            <option value="ข่าว">ข่าว</option>
+            <option value="บันเทิง">บันเทิง</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">ลิงก์สตรีม (.m3u8 / .mp4 / .webm)</label>
+          <input
+            id="new-channel-url"
+            type="url"
+            required
+            placeholder="https://example.com/stream.m3u8"
+            class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Referer (ถ้ามี)</label>
+          <input
+            id="new-channel-referer"
+            type="text"
+            placeholder="https://example.com/"
+            class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">ลิงก์โลโก้ (ถ้ามี)</label>
+          <input
+            id="new-channel-logo"
+            type="url"
+            placeholder="https://example.com/logo.jpg"
+            class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
+          />
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onclick="closeAddModal()"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer"
+          >
+            ยกเลิก
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer"
+          >
+            เล่นทันที
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-box" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[10000] pointer-events-none opacity-0 transition-opacity duration-200">
+    <div id="toast-text" class="px-4 py-2 rounded-full bg-[#131c31]/95 border border-emerald-500/40 text-xs font-medium text-white shadow-xl"></div>
+  </div>
+
+  <script>
+    const CATEGORIES = ['ฟุตบอลสด', 'กีฬา', 'ทีวีดิจิทัล', 'ข่าว', 'บันเทิง'];
+
+    const DEFAULT_CHANNELS = [
+      {
+        id: 'tpf-1',
+        name: 'TPF 1',
+        category: 'ฟุตบอลสด',
+        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        logo: 'https://placehold.co/120x90/7f1d1d/ffffff?text=TPF+1',
+        isCustom: false,
+      },
+      {
+        id: 'tpf-2',
+        name: 'TPF 2',
+        category: 'ฟุตบอลสด',
+        url: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+        logo: 'https://placehold.co/120x90/881337/ffffff?text=TPF+2',
+        isCustom: false,
+      },
+      {
+        id: 'tpf-3',
+        name: 'TPF 3',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/9f1239/ffffff?text=TPF+3',
+        isCustom: false,
+      },
+      {
+        id: 'tpf-4',
+        name: 'TPF 4',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        logo: 'https://placehold.co/120x90/1e3a8a/ffffff?text=TPF+4',
+        isCustom: false,
+      },
+      {
+        id: 'bein-1',
+        name: 'beIN 1',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        logo: 'https://placehold.co/120x90/4c1d95/ffffff?text=beIN+1',
+        isCustom: false,
+      },
+      {
+        id: 'bein-3',
+        name: 'beIN 3',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        logo: 'https://placehold.co/120x90/312e81/ffffff?text=beIN+3',
+        isCustom: false,
+      },
+      {
+        id: 'thai-1',
+        name: 'บอลไทย 1',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        logo: 'https://placehold.co/120x90/b45309/ffffff?text=THAI+1',
+        isCustom: false,
+      },
+      {
+        id: 'thai-2',
+        name: 'บอลไทย 2',
+        category: 'ฟุตบอลสด',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoy.mp4',
+        logo: 'https://placehold.co/120x90/9a3412/ffffff?text=THAI+2',
+        isCustom: false,
+      },
+      {
+        id: 'ts-1',
+        name: 'TrueSport 1',
+        category: 'กีฬา',
+        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        logo: 'https://placehold.co/120x90/065f46/ffffff?text=TS+1',
+        isCustom: false,
+      },
+      {
+        id: 'ts-2',
+        name: 'TrueSport 2',
+        category: 'กีฬา',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/047857/ffffff?text=TS+2',
+        isCustom: false,
+      },
+      {
+        id: 'ts-3',
+        name: 'TrueSport 3',
+        category: 'กีฬา',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        logo: 'https://placehold.co/120x90/0f766e/ffffff?text=SNKR',
+        isCustom: false,
+      },
+      {
+        id: 'f1-hd',
+        name: 'Motorsport',
+        category: 'กีฬา',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        logo: 'https://placehold.co/120x90/b91c1c/ffffff?text=F1+HD',
+        isCustom: false,
+      },
+      {
+        id: 'badm-hd',
+        name: 'Badminton',
+        category: 'กีฬา',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        logo: 'https://placehold.co/120x90/1d4ed8/ffffff?text=BWF',
+        isCustom: false,
+      },
+      {
+        id: 'golf-hd',
+        name: 'Golf Live',
+        category: 'กีฬา',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        logo: 'https://placehold.co/120x90/15803d/ffffff?text=GOLF',
+        isCustom: false,
+      },
+      {
+        id: 'ch-3',
+        name: 'CH3',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://edge-2.m-fixer.net:8092/stream/ais/3hd/master.m3u8',
+        logo: 'https://www.fileinw.com/postor/20240418191821ch3hd.jpg',
+        isCustom: false,
+      },
+      {
+        id: 'ch-5',
+        name: 'CH5',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://edge-2.m-fixer.net:8092/stream/ais/ch5/master.m3u8',
+        logo: 'https://www.fileinw.com/postor/20240418185850ch5hd.jpg',
+        isCustom: false,
+      },
+      {
+        id: 'ch-7',
+        name: 'CH7',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/6d28d9/ffffff?text=CH7',
+        isCustom: false,
+      },
+      {
+        id: 'pptv-36',
+        name: 'PPTV 36',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        logo: 'https://placehold.co/120x90/1e40af/ffffff?text=HD+36',
+        isCustom: false,
+      },
+      {
+        id: 'thairath-32',
+        name: 'ไทยรัฐ 32',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        logo: 'https://placehold.co/120x90/0369a1/ffffff?text=HD+32',
+        isCustom: false,
+      },
+      {
+        id: 'one-31',
+        name: 'ONE 31',
+        category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        logo: 'https://placehold.co/120x90/be123c/ffffff?text=ONE+31',
+        isCustom: false,
+      },
+      {
+        id: 'news-1',
+        name: 'ข่าวกีฬาสด',
+        category: 'ข่าว',
+        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        logo: 'https://placehold.co/120x90/0f766e/ffffff?text=SPORT+NW',
+        isCustom: false,
+      },
+      {
+        id: 'news-2',
+        name: 'ข่าวด่วน 24',
+        category: 'ข่าว',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/1d4ed8/ffffff?text=NEWS+24',
+        isCustom: false,
+      },
+      {
+        id: 'news-3',
+        name: 'ข่าวเศรษฐกิจ',
+        category: 'ข่าว',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        logo: 'https://placehold.co/120x90/334155/ffffff?text=BIZ+TV',
+        isCustom: false,
+      },
+      {
+        id: 'news-4',
+        name: 'ข่าวต่างประเทศ',
+        category: 'ข่าว',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+        logo: 'https://placehold.co/120x90/1e3a8a/ffffff?text=WORLD',
+        isCustom: false,
+      },
+      {
+        id: 'ent-1',
+        name: 'วาไรตี้ HD',
+        category: 'บันเทิง',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoy.mp4',
+        logo: 'https://placehold.co/120x90/9d174d/ffffff?text=ENT+HD',
+        isCustom: false,
+      },
+      {
+        id: 'ent-2',
+        name: 'มิวสิคไลฟ์',
+        category: 'บันเทิง',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/5b21b6/ffffff?text=MUSIC',
+        isCustom: false,
+      },
+    ];
+
+    let channels = [...DEFAULT_CHANNELS];
+    let currentChannelId = 'tpf-1';
+    let activeCategory = 'ฟุตบอลสด';
+    let searchQuery = '';
+    let isPlayerHidden = false;
+    let isCinemaFullscreen = false;
+    let controlsHideTimer = null;
+    let hlsInstance = null;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchSwiping = false;
+    let mouseStartX = 0;
+    let mouseStartY = 0;
+    let isMouseSwiping = false;
+    let suppressNextClick = false;
+    const SWIPE_THRESHOLD = 65;
+
+    const videoEl = document.getElementById('main-video');
+    const containerEl = document.getElementById('video-container');
+    const controlsBarEl = document.getElementById('custom-controls-bar');
+    const loadingEl = document.getElementById('player-loading');
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      const text = document.getElementById('toast-text');
+      text.textContent = msg;
+      box.classList.remove('opacity-0');
+      box.classList.add('opacity-100');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        box.classList.remove('opacity-100');
+        box.classList.add('opacity-0');
+      }, 2200);
+    }
+
+    function handleLogoFallback(imgEl, channelId) {
+      const ch = channels.find((c) => c.id === channelId);
+      const label = encodeURIComponent(ch ? ch.name : 'TV');
+      imgEl.onerror = null;
+      imgEl.src = `https://placehold.co/120x90/1e293b/f8fafc?text=${label}`;
+    }
+
+    function hideControlBarNow() {
+      clearTimeout(controlsHideTimer);
+      controlsBarEl.classList.remove('opacity-100');
+      controlsBarEl.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function showControlBar(autoHideAfterMs = 2400) {
+      clearTimeout(controlsHideTimer);
+      controlsBarEl.classList.remove('opacity-0', 'pointer-events-none');
+      controlsBarEl.classList.add('opacity-100');
+      if (!videoEl.paused && autoHideAfterMs > 0) {
+        controlsHideTimer = setTimeout(() => {
+          if (!videoEl.paused) {
+            hideControlBarNow();
+          }
+        }, autoHideAfterMs);
+      }
+    }
+
+    function enforceUnmutedSound() {
+      videoEl.muted = false;
+      videoEl.defaultMuted = false;
+      videoEl.volume = 1.0;
+      updateVolumeIcon();
+    }
+
+    function forcePlayImmediate() {
+      enforceUnmutedSound();
+      const playPromise = videoEl.play();
+      if (playPromise && typeof playPromise.then === 'function') {
+        playPromise
+          .then(() => {
+            enforceUnmutedSound();
+            loadingEl.classList.add('hidden');
+            hideControlBarNow();
+          })
+          .catch(() => {
+            enforceUnmutedSound();
+            videoEl.play().catch(() => {});
+          });
+      }
+    }
+
+    function destroyHls() {
+      if (hlsInstance) {
+        try {
+          hlsInstance.destroy();
+        } catch (_) {}
+        hlsInstance = null;
+      }
+    }
+
+    function loadAndPlayChannel(channelId) {
+      const ch = channels.find((c) => c.id === channelId);
+      if (!ch) return;
+
+      currentChannelId = ch.id;
+
+      if (isPlayerHidden) {
+        isPlayerHidden = false;
+        updateHidePlayerUI();
+      }
+
+      document.getElementById('now-playing-name').textContent = ch.name;
+      document.getElementById('now-playing-category').textContent = ch.category;
+      const nowLogo = document.getElementById('now-playing-logo');
+      nowLogo.onerror = () => handleLogoFallback(nowLogo, ch.id);
+      nowLogo.src = ch.logo || `https://placehold.co/120x90/1e293b/f8fafc?text=${encodeURIComponent(ch.name)}`;
+
+      const deleteBtn = document.getElementById('delete-custom-btn');
+      if (ch.isCustom) {
+        deleteBtn.classList.remove('hidden');
+      } else {
+        deleteBtn.classList.add('hidden');
+      }
+
+      renderChannelGrid();
+
+      loadingEl.classList.remove('hidden');
+      destroyHls();
+
+      const srcUrl = ch.url.trim();
+      const isHls = /\.m3u8(\?|#|$)/i.test(srcUrl);
+
+      videoEl.pause();
+      enforceUnmutedSound();
+
+      if (isHls && window.Hls && window.Hls.isSupported()) {
+        hlsInstance = new window.Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+        });
+        hlsInstance.loadSource(srcUrl);
+        hlsInstance.attachMedia(videoEl);
+        hlsInstance.on(window.Hls.Events.MANIFEST_PARSED, () => {
+          forcePlayImmediate();
+        });
+        hlsInstance.on(window.Hls.Events.ERROR, (_, data) => {
+          if (data && data.fatal) {
+            loadingEl.classList.add('hidden');
+          }
+        });
+      } else {
+        videoEl.src = srcUrl;
+        videoEl.load();
+        forcePlayImmediate();
+      }
+    }
+
+    function togglePlayPause() {
+      if (videoEl.paused) {
+        forcePlayImmediate();
+      } else {
+        videoEl.pause();
+        showControlBar(0);
+      }
+      updatePlayIcon();
+    }
+
+    function toggleMute() {
+      videoEl.muted = !videoEl.muted;
+      if (!videoEl.muted && videoEl.volume === 0) {
+        videoEl.volume = 1.0;
+      }
+      updateVolumeIcon();
+    }
+
+    function updatePlayIcon() {
+      const icon = document.getElementById('bar-play-icon');
+      if (videoEl.paused) {
+        icon.innerHTML = '<path d="M8 5v14l11-7z" />';
+      } else {
+        icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />';
+      }
+    }
+
+    function updateVolumeIcon() {
+      const icon = document.getElementById('bar-volume-icon');
+      if (videoEl.muted || videoEl.volume === 0) {
+        icon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />';
+      } else {
+        icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />';
+      }
+    }
+
+    function formatTime(sec) {
+      if (!Number.isFinite(sec) || sec < 0) return '00:00';
+      const total = Math.floor(sec);
+      const mins = Math.floor(total / 60);
+      const rem = total % 60;
+      return `${String(mins).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+    }
+
+    function isAnyFullscreen() {
+      return Boolean(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        isCinemaFullscreen
+      );
+    }
+
+    function enterFullscreenMode() {
+      isCinemaFullscreen = true;
+      containerEl.classList.add('cinema-fullscreen');
+      document.documentElement.style.overflow = 'hidden';
+
+      const req =
+        containerEl.requestFullscreen ||
+        containerEl.webkitRequestFullscreen ||
+        videoEl.webkitEnterFullscreen;
+
+      if (typeof req === 'function') {
+        try {
+          const target = req === videoEl.webkitEnterFullscreen ? videoEl : containerEl;
+          const res = req.call(target);
+          if (res && typeof res.catch === 'function') {
+            res.catch(() => {});
+          }
+        } catch (_) {}
+      }
+      enforceUnmutedSound();
+    }
+
+    function exitFullscreenMode() {
+      isCinemaFullscreen = false;
+      containerEl.classList.remove('cinema-fullscreen');
+      document.documentElement.style.overflow = '';
+
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitFullscreenElement && document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+
+    function toggleFullscreenMode() {
+      if (isAnyFullscreen()) {
+        exitFullscreenMode();
+      } else {
+        enterFullscreenMode();
+      }
+    }
+
+    function toggleHidePlayer() {
+      isPlayerHidden = !isPlayerHidden;
+      updateHidePlayerUI();
+    }
+
+    function updateHidePlayerUI() {
+      const section = document.getElementById('player-section');
+      const label = document.getElementById('hide-player-label');
+      const icon = document.getElementById('hide-player-icon');
+      if (isPlayerHidden) {
+        section.classList.add('hidden');
+        label.textContent = 'แสดงจอ';
+        icon.textContent = '^';
+      } else {
+        section.classList.remove('hidden');
+        label.textContent = 'ซ่อนจอ';
+        icon.textContent = '⌄';
+      }
+    }
+
+    function renderCategoryTabs() {
+      const wrap = document.getElementById('category-tabs');
+      wrap.innerHTML = '';
+      CATEGORIES.forEach((cat) => {
+        const active = activeCategory === cat;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = cat;
+        btn.onclick = () => {
+          activeCategory = cat;
+          renderCategoryTabs();
+          renderChannelGrid();
+        };
+        btn.className = active
+          ? 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500 text-slate-950 shrink-0 cursor-pointer transition'
+          : 'px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#0f172a] hover:bg-slate-800 text-slate-300 border border-slate-800 shrink-0 cursor-pointer transition';
+        wrap.appendChild(btn);
+      });
+    }
+
+    function handleSearchInput(val) {
+      searchQuery = val.trim().toLowerCase();
+      renderChannelGrid();
+    }
+
+    function renderChannelGrid() {
+      const grid = document.getElementById('channel-grid');
+      const emptyEl = document.getElementById('empty-state');
+      const countEl = document.getElementById('channel-count-label');
+
+      const filtered = channels.filter((ch) => {
+        const matchCat = ch.category === activeCategory;
+        const matchQuery = !searchQuery || ch.name.toLowerCase().includes(searchQuery) || ch.category.toLowerCase().includes(searchQuery);
+        return matchCat && matchQuery;
+      });
+
+      countEl.textContent = `${filtered.length} ช่อง`;
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+      emptyEl.classList.add('hidden');
+
+      filtered.forEach((ch) => {
+        const isPlaying = ch.id === currentChannelId;
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.onclick = () => loadAndPlayChannel(ch.id);
+        card.className = isPlaying
+          ? 'group text-left rounded-xl p-1.5 bg-[#131c31] border-2 border-emerald-400 shadow-md flex flex-col gap-1 cursor-pointer transition min-w-0'
+          : 'group text-left rounded-xl p-1.5 bg-[#0f172a] hover:bg-[#131c31] border border-slate-800/90 hover:border-slate-700 flex flex-col gap-1 cursor-pointer transition min-w-0';
+
+        const topBadge = document.createElement('div');
+        topBadge.className = 'flex items-center gap-1 text-[10px] font-semibold leading-none px-0.5';
+        if (isPlaying) {
+          topBadge.className += ' text-emerald-400';
+          topBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span><span class="truncate">กำลังเล่น</span>';
+        } else {
+          topBadge.className += ' text-emerald-400/90';
+          topBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span><span class="truncate">LIVE</span>';
+        }
+
+        const imgBox = document.createElement('div');
+        imgBox.className = 'w-full aspect-[4/3] rounded-lg overflow-hidden bg-slate-900 border border-slate-800/80';
+
+        const img = document.createElement('img');
+        img.src = ch.logo || `https://placehold.co/120x90/1e293b/f8fafc?text=${encodeURIComponent(ch.name)}`;
+        img.alt = ch.name;
+        img.loading = 'lazy';
+        img.className = 'w-full h-full object-cover group-hover:scale-105 transition duration-200';
+        img.onerror = () => handleLogoFallback(img, ch.id);
+
+        imgBox.appendChild(img);
+
+        const titleEl = document.createElement('div');
+        titleEl.textContent = ch.name;
+        titleEl.className = 'text-[11px] sm:text-xs font-semibold text-white truncate px-0.5 leading-tight';
+
+        const subEl = document.createElement('div');
+        if (isPlaying) {
+          subEl.textContent = 'กำลังเล่น';
+          subEl.className = 'text-[10px] font-bold text-[#22c55e] truncate px-0.5 leading-tight';
+        } else {
+          subEl.textContent = ch.category;
+          subEl.className = 'text-[10px] text-slate-400 truncate px-0.5 leading-tight';
+        }
+
+        card.appendChild(topBadge);
+        card.appendChild(imgBox);
+        card.appendChild(titleEl);
+        card.appendChild(subEl);
+        grid.appendChild(card);
+      });
+    }
+
+    function openAddModal() {
+      document.getElementById('add-link-modal').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-link-modal').classList.add('hidden');
+      document.getElementById('add-link-form').reset();
+    }
+
+    function handleAddLinkSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-channel-name').value.trim();
+      const category = document.getElementById('new-channel-category').value;
+      const url = document.getElementById('new-channel-url').value.trim();
+      const logoInput = document.getElementById('new-channel-logo').value.trim();
+      if (!name || !url) return;
+
+      const newChannel = {
+        id: 'custom-' + Date.now(),
+        name,
+        category,
+        url,
+        logo: logoInput || `https://placehold.co/120x90/065f46/ffffff?text=${encodeURIComponent(name)}`,
+        isCustom: true,
+      };
+
+      channels.unshift(newChannel);
+      activeCategory = category;
+      closeAddModal();
+      renderCategoryTabs();
+      renderChannelGrid();
+      loadAndPlayChannel(newChannel.id);
+      showToast('เพิ่มช่องและเริ่มเล่นแล้ว');
+    }
+
+    function deleteCurrentCustomChannel() {
+      const idx = channels.findIndex((c) => c.id === currentChannelId && c.isCustom);
+      if (idx === -1) return;
+      channels.splice(idx, 1);
+      const next = channels[0] || DEFAULT_CHANNELS[0];
+      activeCategory = next.category;
+      renderCategoryTabs();
+      renderChannelGrid();
+      loadAndPlayChannel(next.id);
+      showToast('ลบช่องที่เพิ่มเองแล้ว');
+    }
+
+    videoEl.addEventListener('play', () => {
+      enforceUnmutedSound();
+      updatePlayIcon();
+      loadingEl.classList.add('hidden');
+      hideControlBarNow();
+    });
+
+    videoEl.addEventListener('playing', () => {
+      enforceUnmutedSound();
+      updatePlayIcon();
+      loadingEl.classList.add('hidden');
+      hideControlBarNow();
+    });
+
+    videoEl.addEventListener('pause', () => {
+      updatePlayIcon();
+      showControlBar(0);
+    });
+
+    videoEl.addEventListener('timeupdate', () => {
+      document.getElementById('bar-time-label').textContent = formatTime(videoEl.currentTime);
+    });
+
+    videoEl.addEventListener('volumechange', () => {
+      updateVolumeIcon();
+    });
+
+    containerEl.addEventListener('click', (e) => {
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        return;
+      }
+      if (e.target.closest('button')) return;
+      if (controlsBarEl.classList.contains('opacity-0')) {
+        showControlBar(2400);
+      } else {
+        togglePlayPause();
+      }
+    });
+
+    containerEl.addEventListener(
+      'touchstart',
+      (e) => {
+        if (!isAnyFullscreen() || !e.touches || e.touches.length === 0) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isTouchSwiping = true;
+      },
+      { passive: true }
+    );
+
+    containerEl.addEventListener(
+      'touchend',
+      (e) => {
+        if (!isTouchSwiping || !e.changedTouches || e.changedTouches.length === 0) return;
+        isTouchSwiping = false;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (isAnyFullscreen() && Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          suppressNextClick = true;
+          exitFullscreenMode();
+        }
+      },
+      { passive: true }
+    );
+
+    containerEl.addEventListener('mousedown', (e) => {
+      if (!isAnyFullscreen() || e.button !== 0 || e.target.closest('button')) return;
+      mouseStartX = e.clientX;
+      mouseStartY = e.clientY;
+      isMouseSwiping = true;
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (!isMouseSwiping) return;
+      isMouseSwiping = false;
+      const dx = e.clientX - mouseStartX;
+      const dy = e.clientY - mouseStartY;
+      if (isAnyFullscreen() && Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        suppressNextClick = true;
+        exitFullscreenMode();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && isCinemaFullscreen) {
+        isCinemaFullscreen = false;
+        containerEl.classList.remove('cinema-fullscreen');
+        document.documentElement.style.overflow = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isAnyFullscreen()) {
+        exitFullscreenMode();
+      }
+    });
+
+    window.addEventListener('pointerdown', () => {
+      enforceUnmutedSound();
+    }, { passive: true });
+
+    renderCategoryTabs();
+    renderChannelGrid();
+    loadAndPlayChannel(currentChannelId);
+  </script>
+</body>
+</html>
