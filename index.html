@@ -286,7 +286,7 @@
           >
             <option value="ทีวี">ทีวี</option>
             <option value="MONOMAX">MONOMAX</option>
-            <option value="กีฬา">กีฬา</option>            
+            <option value="beIN">beIN</option>            
             <option value="ข่าว">ข่าว</option>
             <option value="บันเทิง">บันเทิง</option>
           </select>
@@ -348,7 +348,7 @@
   </div>
 
   <script>
-    const CATEGORIES = ['ทีวี', 'MONOMAX', 'กีฬา',  'ข่าว', 'บันเทิง'];
+    const CATEGORIES = ['ทีวี', 'MONOMAX', 'beIN',  'ข่าว', 'บันเทิง'];
 
     const DEFAULT_CHANNELS = [
       {
@@ -720,53 +720,42 @@
       },
       
       {
-        id: 'ts-1',
-        name: 'TrueSport 1',
-        category: 'กีฬา',
-        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-        logo: 'https://placehold.co/120x90/065f46/ffffff?text=TS+1',
+        id: 'tpf-3-1', name: 'TPF3', category: 'beIN',
+        url: 'https://playid-live.ai.studio/live/tv/40/playlist.m3u8',
+        logo: 'https://playid-live.ai.studio/api/tv/logo/40',
         isCustom: false,
       },
       {
-        id: 'ts-2',
-        name: 'TrueSport 2',
-        category: 'กีฬา',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        logo: 'https://placehold.co/120x90/047857/ffffff?text=TS+2',
+        id: 'tpf-4-1', name: 'TPF4', category: 'beIN',
+        url: 'https://playid-live.ai.studio/live/tv/41/playlist.m3u8',
+        logo: 'https://playid-live.ai.studio/api/tv/logo/41',
         isCustom: false,
       },
       {
-        id: 'ts-3',
-        name: 'TrueSport 3',
-        category: 'กีฬา',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        logo: 'https://placehold.co/120x90/0f766e/ffffff?text=SNKR',
+        id: 'tpf-5-1', name: 'TPF5', category: 'beIN',
+        url: 'https://playid-live.ai.studio/live/tv/42/playlist.m3u8',
+        logo: 'https://playid-live.ai.studio/api/tv/logo/42',
         isCustom: false,
       },
       {
-        id: 'f1-hd',
-        name: 'Motorsport',
-        category: 'กีฬา',
+        id: 'f1-hd', name: 'Motorsport', category: 'beIN',
         url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
         logo: 'https://placehold.co/120x90/b91c1c/ffffff?text=F1+HD',
         isCustom: false,
       },
       {
-        id: 'badm-hd',
-        name: 'Badminton',
-        category: 'กีฬา',
+        id: 'badm-hd', name: 'Badminton', category: 'beIN',
         url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
         logo: 'https://placehold.co/120x90/1d4ed8/ffffff?text=BWF',
         isCustom: false,
       },
       {
-        id: 'golf-hd',
-        name: 'Golf Live',
-        category: 'กีฬา',
+        id: 'golf-hd', name: 'Golf Live', category: 'beIN',
         url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
         logo: 'https://placehold.co/120x90/15803d/ffffff?text=GOLF',
         isCustom: false,
-      },      
+      },  
+      
       {
         id: 'news-1',
         name: 'ข่าวกีฬาสด',
