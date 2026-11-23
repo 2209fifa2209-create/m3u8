@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SportStream TV</title>
+  <title>Baan TV</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
   <style>
@@ -284,9 +284,9 @@
             id="new-channel-category"
             class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
           >
+            <option value="ทีวี">ทีวี</option>
             <option value="ฟุตบอลสด">ฟุตบอลสด</option>
-            <option value="กีฬา">กีฬา</option>
-            <option value="ทีวีดิจิทัล">ทีวีดิจิทัล</option>
+            <option value="กีฬา">กีฬา</option>            
             <option value="ข่าว">ข่าว</option>
             <option value="บันเทิง">บันเทิง</option>
           </select>
@@ -351,6 +351,49 @@
     const CATEGORIES = ['ฟุตบอลสด', 'กีฬา', 'ทีวีดิจิทัล', 'ข่าว', 'บันเทิง'];
 
     const DEFAULT_CHANNELS = [
+      {
+        id: 'ch-3', name: 'CH3' category: 'ทีวี',
+        url: 'https://edge-2.m-fixer.net:8092/stream/ais/3hd/master.m3u8',
+        logo: 'https://www.fileinw.com/postor/20240418191821ch3hd.jpg',
+        isCustom: false,
+      },
+      {
+        id: 'ch-3', name: 'CH3' category: 'ทีวี',
+        url: 'https://playid-live.ai.studio/live/tv/177/playlist.m3u8',
+        logo: 'https://www.fileinw.com/postor/20240418191821ch3hd.jpg',
+        isCustom: false,
+      },
+      {
+        id: 'ch-5', name: 'CH5', category: 'ทีวี',
+        url: 'https://edge-2.m-fixer.net:8092/stream/ais/ch5/master.m3u8',
+        logo: 'https://www.fileinw.com/postor/20240418185850ch5hd.jpg',
+        isCustom: false,
+      },
+      {
+        id: 'ch-7', name: 'CH7', category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        logo: 'https://placehold.co/120x90/6d28d9/ffffff?text=CH7',
+        isCustom: false,
+      },
+      {
+        id: 'pptv-36', name: 'PPTV 36', category: 'ทีวี',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        logo: 'https://placehold.co/120x90/1e40af/ffffff?text=HD+36',
+        isCustom: false,
+      },
+      {
+        id: 'thairath-32', name: 'ไทยรัฐ 32', category: 'ทีวี',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        logo: 'https://placehold.co/120x90/0369a1/ffffff?text=HD+32',
+        isCustom: false,
+      },
+      {
+        id: 'one-31', name: 'ONE 31', category: 'ทีวีดิจิทัล',
+        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+        logo: 'https://placehold.co/120x90/be123c/ffffff?text=ONE+31',
+        isCustom: false,
+      },
+      
       {
         id: 'tpf-1',name: 'TPF 1',category: 'ฟุตบอลสด',
         url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
@@ -460,55 +503,7 @@
         url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
         logo: 'https://placehold.co/120x90/15803d/ffffff?text=GOLF',
         isCustom: false,
-      },
-      {
-        id: 'ch-3',
-        name: 'CH3',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://edge-2.m-fixer.net:8092/stream/ais/3hd/master.m3u8',
-        logo: 'https://www.fileinw.com/postor/20240418191821ch3hd.jpg',
-        isCustom: false,
-      },
-      {
-        id: 'ch-5',
-        name: 'CH5',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://edge-2.m-fixer.net:8092/stream/ais/ch5/master.m3u8',
-        logo: 'https://www.fileinw.com/postor/20240418185850ch5hd.jpg',
-        isCustom: false,
-      },
-      {
-        id: 'ch-7',
-        name: 'CH7',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        logo: 'https://placehold.co/120x90/6d28d9/ffffff?text=CH7',
-        isCustom: false,
-      },
-      {
-        id: 'pptv-36',
-        name: 'PPTV 36',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        logo: 'https://placehold.co/120x90/1e40af/ffffff?text=HD+36',
-        isCustom: false,
-      },
-      {
-        id: 'thairath-32',
-        name: 'ไทยรัฐ 32',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        logo: 'https://placehold.co/120x90/0369a1/ffffff?text=HD+32',
-        isCustom: false,
-      },
-      {
-        id: 'one-31',
-        name: 'ONE 31',
-        category: 'ทีวีดิจิทัล',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        logo: 'https://placehold.co/120x90/be123c/ffffff?text=ONE+31',
-        isCustom: false,
-      },
+      },      
       {
         id: 'news-1',
         name: 'ข่าวกีฬาสด',
