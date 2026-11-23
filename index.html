@@ -285,7 +285,7 @@
             class="w-full px-3 py-2 rounded-xl bg-[#070b12] border border-slate-700 focus:border-emerald-500 focus:outline-none text-sm text-white"
           >
             <option value="ทีวี">ทีวี</option>
-            <option value="ฟุตบอลสด">ฟุตบอลสด</option>
+            <option value="MONOMAX">MONOMAX</option>
             <option value="กีฬา">กีฬา</option>            
             <option value="ข่าว">ข่าว</option>
             <option value="บันเทิง">บันเทิง</option>
@@ -348,7 +348,7 @@
   </div>
 
   <script>
-    const CATEGORIES = ['ทีวี', 'ฟุตบอลสด', 'กีฬา',  'ข่าว', 'บันเทิง'];
+    const CATEGORIES = ['ทีวี', 'MONOMAX', 'กีฬา',  'ข่าว', 'บันเทิง'];
 
     const DEFAULT_CHANNELS = [
       {
@@ -575,67 +575,150 @@
       },
       
       {
-        id: 'tpf-1',name: 'TPF 1',category: 'ฟุตบอลสด',
-        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-        logo: 'https://placehold.co/120x90/7f1d1d/ffffff?text=TPF+1',
+        id: 'max-1-1',name: 'MONOMAX1',category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax1/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_1.png',
         isCustom: false,
       },
       {
-        id: 'tpf-2',
-        name: 'TPF 2',
-        category: 'ฟุตบอลสด',
-        url: 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
-        logo: 'https://placehold.co/120x90/881337/ffffff?text=TPF+2',
+        id: 'max-1-2', name: 'MONOMAX1(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax1720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_1.png',
         isCustom: false,
       },
       {
-        id: 'tpf-3',
-        name: 'TPF 3',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        logo: 'https://placehold.co/120x90/9f1239/ffffff?text=TPF+3',
+        id: 'max2-1', name: 'MONOMAX2', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax2/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_2.png',
         isCustom: false,
       },
       {
-        id: 'tpf-4',
-        name: 'TPF 4',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        logo: 'https://placehold.co/120x90/1e3a8a/ffffff?text=TPF+4',
+        id: 'max-2-2', name: 'MONOMAX2(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax2720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_2.png',
         isCustom: false,
       },
       {
-        id: 'bein-1',
-        name: 'beIN 1',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        logo: 'https://placehold.co/120x90/4c1d95/ffffff?text=beIN+1',
+        id: 'max-3-1', name: 'MONOMAX3', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax3/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_3.png',
         isCustom: false,
       },
       {
-        id: 'bein-3',
-        name: 'beIN 3',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-        logo: 'https://placehold.co/120x90/312e81/ffffff?text=beIN+3',
+        id: 'max-3-2', name: 'MONOMAX3(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax3720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_3.png',
         isCustom: false,
       },
       {
-        id: 'thai-1',
-        name: 'บอลไทย 1',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-        logo: 'https://placehold.co/120x90/b45309/ffffff?text=THAI+1',
+        id: 'max-4-1', name: 'MONOMAX4', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax4/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_4.png',
         isCustom: false,
       },
       {
-        id: 'thai-2',
-        name: 'บอลไทย 2',
-        category: 'ฟุตบอลสด',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoy.mp4',
-        logo: 'https://placehold.co/120x90/9a3412/ffffff?text=THAI+2',
+        id: 'max-4-2', name: 'MONOMAX4(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax4720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_4.png',
         isCustom: false,
       },
+      {
+        id: 'max-5-1', name: 'MONOMAX5', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax5/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_5.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-5-2', name: 'MONOMAX5(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax5720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_5.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-6-1', name: 'MONOMAX6', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax6/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_6.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-6-2', name: 'MONOMAX6(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax6720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_6.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-7-1', name: 'MONOMAX7', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax7/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_7.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-7-2', name: 'MONOMAX7(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax7720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_7.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-8-1', name: 'MONOMAX8', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax8/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_8.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-8-2', name: 'MONOMAX8(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax8720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_8.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-9-1', name: 'MONOMAX9', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax9/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_9.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-9-2', name: 'MONOMAX9(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax9720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_9.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-10-1', name: 'MONOMAX10', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax10/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_10.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-10-2', name: 'MONOMAX10(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax10720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_10.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-11-1', name: 'MONOMAX11', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax11/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_11.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-11-2', name: 'MONOMAX11(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax11720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_11.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-12-1', name: 'MONOMAX12', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax12/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_12.png',
+        isCustom: false,
+      },
+      {
+        id: 'max-12-2', name: 'MONOMAX12(720)', category: 'MONOMAX',
+        url: 'https://edge-2.m-fixer.net:8092/stream/monomax/monomax12720/master.m3u8',
+        logo: 'https://bestcommt2.github.io/logo/sport/momomaxsport_12.png',
+        isCustom: false,
+      },
+      
       {
         id: 'ts-1',
         name: 'TrueSport 1',
